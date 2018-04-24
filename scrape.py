@@ -434,11 +434,7 @@ def AmzonParser(url,asin,session):
 	      thirdrank = 0
 	      thirdcategory = ""
 	  
-	  #print firstcategory + ", " + secondcategory + ", " + thirdcategory
-          
-      
-    wholerank = 99999
-	  
+    
 	  if KU:
 	    unlimited = 1
 	  else:
@@ -512,8 +508,7 @@ def AmzonParser(url,asin,session):
 		  'REZENSIONEN':rezensionen,
 		  'RATING':bewertung,
 		  'KU': unlimited,
-                  'RANK':wholerank,
-		  '1RANK':firstrank,
+      '1RANK':firstrank,
 		  '1CATEGORY':firstcategory,
 		  '2RANK':secondrank,
 		  '2CATEGORY':secondcategory,
@@ -541,9 +536,9 @@ def save(links,keyword):
  
 def writeToCSV(database):
     
-    headers = ["title","pages","author","rank","reviws","rating","ku","price"]
+    headers = ["title","pages","author","reviews","rating","ku","price","blurb","url","category","rank","category","rank","category","rank"]
     filename = title + ".csv"
-    b = open(filename, 'w')
+    b = open(filename, 'wb')
     a = csv.writer(b)
     a.writerows([headers])   
     for i in range(0, len(database)):
@@ -551,11 +546,23 @@ def writeToCSV(database):
                 entry.append(database[i]["NAME"])
                 entry.append(database[i]["PAGES"])
                 entry.append(database[i]["AUTHOR"])
-                entry.append(database[i]["RANK"])
                 entry.append(database[i]["REZENSIONEN"])
                 entry.append(database[i]["RATING"])
                 entry.append(database[i]["KU"])
                 entry.append(database[i]["PRICE"])
+                entry.append(database[i]["BLURB"])
+                entry.append(database[i]["URL"])
+                
+                
+                if len(database[i]["1CATEGORY"]) > 2 and database[i]["1RANK"]>0:
+                  entry.append(database[i]["1CATEGORY"])
+                  entry.append(database[i]["1RANK"])
+                if len(database[i]["2CATEGORY"]) > 2 and database[i]["2RANK"]>0:
+                  entry.append(database[i]["2CATEGORY"])
+                  entry.append(database[i]["2RANK"])
+                if len(database[i]["3CATEGORY"]) > 2 and database[i]["3RANK"]>0:
+                  entry.append(database[i]["3CATEGORY"])
+                  entry.append(database[i]["3RANK"])
 #                for t in range(0, len(tagcloud)):
 #                    if tagcloud[t] in database[i]["TAG"]:
 #                        entry.append(1)
@@ -669,9 +676,8 @@ def ReadAsin():
                     before = len(database)
                     
                     for l in range(0,len(links)): 
-                      #patience = randint(0,2)
-                      #print "Patience (" + str(patience) + ")"
-                      #sleep(patience)
+                      #for all the links found for this keyword, fetch all the books and append them to the database
+
                       s = requests.Session()
                       url = "https://www.amazon.de/dp/" + links[l]
                       found = False
@@ -683,12 +689,12 @@ def ReadAsin():
                                   print "--> We already have an entry with that url: " + url + "\n"
                                   found = True
                                   key = database[i]["KEYWORDS"]
-                                  if  keycloud[k][0] in key:
+                                  if  keycloud[k][j] in key:
                                       n = 0 #do nothing
                                       #print "Entry already has the key.\n"
                                   else:
                                       #print "Updated keywords for entry.\n"
-                                      database[i]["KEYWORDS"].append(keycloud[k][0])
+                                      database[i]["KEYWORDS"].append(keycloud[k][j])
 
                                  
                       if found == False:
@@ -702,29 +708,17 @@ def ReadAsin():
                                               new = False
                                               print "we have that already"
                                               key = database[i]["KEYWORDS"]
-                                              if  keycloud[k][0] in key:
+                                              if  keycloud[k][j] in key:
                                                 n = 0 #do nothing
                                                   #print "Entry already has the key.\n"
                                               else:
                                                   #print "Updated keywords for entry.\n"
                                                   #print "adding new key " +  keycloud[k][0]
-                                                  database[i]["KEYWORDS"].append(keycloud[k][0])
+                                                  database[i]["KEYWORDS"].append(keycloud[k][j])
                                                 #  print database[i]["KEYWORDS"]
                                     if new == True:
                                               ## new book title as well!
-                                              key = []
-                                              for a in range(0,len(keycloud)):
-                                                  for b in range (0, len(keycloud[a])):
-                                                    try:
-                                                      if (keycloud[a][b] in data["NAME"].encode('utf-8')):
-                                                          key.append(keycloud[a][0]);
-                                                          print "adding new key " +  keycloud[a][0]
-                                                      if (keycloud[a][b] in data["BLURB"].encode('utf-8')):
-                                                          key.append(keycloud[a][0]);
-                                                          print "adding new key " +  keycloud[a][0]
-                                                    except:
-                                                      continue
-                                              data["KEYWORDS"] = key
+                                              data["KEYWORDS"] = keycloud[k][j]
                                               #print data
                                               
                                               try:
@@ -762,6 +756,18 @@ def ReadAsin():
             database[i]["BLURB"] = database[i]["BLURB"].encode('utf-8')
         except:
             o = 19
+        try:
+            database[i]["1CATEGORY"] = database[i]["1CATEGORY"].encode('utf-8')
+        except:
+            o = 19
+        try:
+            database[i]["2CATEGORY"] = database[i]["2CATEGORY"].encode('utf-8')
+        except:
+            o = 19
+        try:
+            database[i]["3CATEGORY"] = database[i]["3CATEGORY"].encode('utf-8')
+        except:
+            o = 19
             
 
     filename = title + ".json"
@@ -779,8 +785,6 @@ def ReadAsin():
     
 if __name__ == "__main__":
   
-  global pagedepth
-  global title
   
   filename = "config"
   if os.path.isfile(filename):
