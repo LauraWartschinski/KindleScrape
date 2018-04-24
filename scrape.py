@@ -536,7 +536,17 @@ def save(links,keyword):
  
 def writeToCSV(database):
     
-    headers = ["title","pages","author","reviews","rating","ku","price","blurb","url","category","rank","category","rank","category","rank"]
+    headers = ["title","pages","author","reviews","rating","ku","price","blurb","url"]
+    for j in range(0, len(keycloud)):
+      for k in range(0, len(keycloud[j])):
+        headers.append(keycloud[j][k])
+    headers.append("category")
+    headers.append("rank")
+    headers.append("category")
+    headers.append("rank")
+    headers.append("category")
+    headers.append("rank")      
+        
     filename = title + ".csv"
     b = open(filename, 'wb')
     a = csv.writer(b)
@@ -552,8 +562,12 @@ def writeToCSV(database):
                 entry.append(database[i]["PRICE"])
                 entry.append(database[i]["BLURB"])
                 entry.append(database[i]["URL"])
-                
-                
+                for j in range(0, len(keycloud)):
+                  for k in range(0, len(keycloud[j])):
+                    if keycloud[j][k] in database[i]["KEYWORDS"]:
+                      entry.append("1")
+                    else:
+                      entry.append("0")
                 if len(database[i]["1CATEGORY"]) > 2 and database[i]["1RANK"]>0:
                   entry.append(database[i]["1CATEGORY"])
                   entry.append(database[i]["1RANK"])
@@ -563,6 +577,7 @@ def writeToCSV(database):
                 if len(database[i]["3CATEGORY"]) > 2 and database[i]["3RANK"]>0:
                   entry.append(database[i]["3CATEGORY"])
                   entry.append(database[i]["3RANK"])
+                
 #                for t in range(0, len(tagcloud)):
 #                    if tagcloud[t] in database[i]["TAG"]:
 #                        entry.append(1)
@@ -804,7 +819,7 @@ if __name__ == "__main__":
   else:
       print "config file deleted. Using defaults."
       configs = []
-      pages = ["How many pages of search results: ", 6]
+      pages = ["result pages: ", 6]
       something = ["something", 100]
       configs.append(pages)
       configs.append(something)
