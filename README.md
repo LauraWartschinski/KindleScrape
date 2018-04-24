@@ -2,9 +2,12 @@
 A collection of python scripts for scraping the German Amazon ebook store, using keywords and metrics.
 
 
-#Scrape
+# Scrape
+
 Used to fetch books for certain keywords and genres from Amazon.
+
 Usage: python scrapy.py [search name] [keyword 1] [keyword 2] [keyword 3] (etc.)
+
 Example: python scrape.py krimi mord detektiv krimi
 
 The following infos about the books are collected: title, author, blurb (description), price, if the book is enrolled in the Kindle Unlimited program, number of reviews, average rating, number of pages, ranking and categories in which it is ranked, keywords, url.
@@ -17,3 +20,6 @@ Because of small variations in the amazon interface, some data can not always be
 
 The output is stored in a csv file. JSON files are created to save the progress.
 
+
+
+# Keyword Checker
