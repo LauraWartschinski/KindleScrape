@@ -10,12 +10,14 @@ import time
 import codecs
 import pickle
 
-keywords1 = ['keyword1', 'keyword2']
-
-
+keywords = []
 keycloud = []
 hindex = 0
 last = 0
+pagedepth = 0
+title = ""
+
+
 ################### CLEAN HTML (HELPER) ############################
 def clean_html(content):
     content = content.replace("</p>"," ")
@@ -75,10 +77,11 @@ def clean_html(content):
 
 
 
-################### COLLECT LINKS FOR KEYWORD (6 PAGES) ############################
+################### COLLECT LINKS FOR KEYWORD (pagedepth PAGES) ############################
 
 
 def collectLinksForKeyword(key):
+    global pagedepth
     filename = key + ".json" + "DISABLED"
     
     filenameold = "new_" + key + ".json" + "DISABLED"
@@ -97,8 +100,10 @@ def collectLinksForKeyword(key):
             return list(set(data))
     else:
       extracted_data = []
-      for i in range(0,10):
-	url = "https://www.amazon.de/s/&url=node%3D611339031&field-keywords=" + key + "?page=" + str(i)
+      for i in range(0,pagedepth):
+        
+	url = "https://www.amazon.de/s/url=search-alias%3Ddigital-text&field-keywords=" + key + "?page=" + str(i)
+#	url = "https://www.amazon.de/s/&url=node%3D611339031&field-keywords=" + key + "?page=" + str(i) //Erotik
 	new = AmazonParserLinks(url)
 	if (len(new)) > 0:
 	  extracted_data = extracted_data + new
@@ -431,14 +436,8 @@ def AmzonParser(url,asin,session):
 	  
 	  #print firstcategory + ", " + secondcategory + ", " + thirdcategory
           
-          if "eBooks > Erotik > Romane" in firstcategory:
-              wholerank = firstrank
-          elif "eBooks > Erotik > Romane" in secondcategory:
-              wholerank = secondrank
-          elif "eBooks > Erotik > Romane" in thirdcategory:
-              wholerank = thirdrank
-          else:
-              wholerank = 99999
+      
+    wholerank = 99999
 	  
 	  if KU:
 	    unlimited = 1
@@ -540,6 +539,34 @@ def save(links,keyword):
  
  
  
+def writeToCSV(database):
+    
+    headers = ["title","pages","author","rank","reviws","rating","ku","price"]
+    filename = title + ".csv"
+    b = open(filename, 'w')
+    a = csv.writer(b)
+    a.writerows([headers])   
+    for i in range(0, len(database)):
+                entry = []
+                entry.append(database[i]["NAME"])
+                entry.append(database[i]["PAGES"])
+                entry.append(database[i]["AUTHOR"])
+                entry.append(database[i]["RANK"])
+                entry.append(database[i]["REZENSIONEN"])
+                entry.append(database[i]["RATING"])
+                entry.append(database[i]["KU"])
+                entry.append(database[i]["PRICE"])
+#                for t in range(0, len(tagcloud)):
+#                    if tagcloud[t] in database[i]["TAG"]:
+#                        entry.append(1)
+#                        
+#                    else:
+#                        entry.append(0)
+                      
+#                print entry
+                a.writerows([entry])
+    b.close()
+
  
  
  
@@ -547,53 +574,48 @@ def save(links,keyword):
  
  
  
-################################# MAIN #########################################
+ 
+################################# MAIN SEARCH METHOD #########################################
  
  
 def ReadAsin():
     global keycloud
-    global last 
-    # links = ['B007Z7UF6U', 'B01E97XZYC', 'B01LZ2JEZX']  
+    global last
+    global title
+    global pagedepth
+    
     database = []
     second = []
-    filename = "database.json"
-    
+    filename = "scrape-database-" + title + ".json"
     
     if os.path.isfile(filename):	
         try:
             with open(filename, 'rb') as f:
                 database = json.load(f)
-                
+                print "databas restored"
         except:
             with open(filename, 'rb') as f:
                 database = pickle.load(f)
+                print "databas restored"
+    else:
+      print "started new database"
 
 
-#    else:
-#      database = CollectBestsellers()
-#      with open(filename, 'wb') as f:
-#	  pickle.dump(database, f)
-#      print "waiting.."
-#    sleep(30)	
-
-
-    print str(len(second))
-      
-	
-      
-    print len(keycloud)
+    
     for k in range(0,len(keycloud)):
            print len(database)
            neu = []
            print "====================================================="
-           print "keyword group " + str(k+1) + " " + str(keycloud[k][0])
+           print "keyword group " + str(k+1) + " " + title
            print "====================================================="
            for j in range(0,len(keycloud[k])):
                filename = "save-" +keycloud[k][j] + ".json"
                
+               
+               ###For every keyword,  
                if os.path.isfile(filename) and False:	
                     print "\n-------------------------------------------------------------------------------"
-                    print "Loading keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + str(keycloud[k][0]) + ")"
+                    print "Loading keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + title + ")"
                     print "-------------------------------------------------------------------------------\n"
 
                     #print "we already have a file"                
@@ -638,7 +660,7 @@ def ReadAsin():
                else:
                 
                     print "\n-------------------------------------------------------------------------------"
-                    print "Working on keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + str(keycloud[k][0]) + ")"
+                    print "Working on keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + title + ")"
                     print "-------------------------------------------------------------------------------\n"
 
                     links = collectLinksForKeyword(keycloud[k][j])
@@ -670,10 +692,12 @@ def ReadAsin():
 
                                  
                       if found == False:
+                              ## new book url
                               data = AmzonParser(url,links[l],s)
                               if data:
                                     new = True
-                                    for i in range(0, len(database)):    
+                                    for i in range(0, len(database)):
+                                        ##already have a book with that title
                                         if database[i]["NAME"] == data["NAME"].encode('utf-8'):
                                               new = False
                                               print "we have that already"
@@ -683,28 +707,26 @@ def ReadAsin():
                                                   #print "Entry already has the key.\n"
                                               else:
                                                   #print "Updated keywords for entry.\n"
-                                                  #print "adding ney key " +  keycloud[k][0]
+                                                  #print "adding new key " +  keycloud[k][0]
                                                   database[i]["KEYWORDS"].append(keycloud[k][0])
                                                 #  print database[i]["KEYWORDS"]
                                     if new == True:
+                                              ## new book title as well!
                                               key = []
-                                              key.append(keycloud[k][0])
-                                              print "adding ney key " +  keycloud[k][0]
                                               for a in range(0,len(keycloud)):
                                                   for b in range (0, len(keycloud[a])):
                                                     try:
                                                       if (keycloud[a][b] in data["NAME"].encode('utf-8')):
                                                           key.append(keycloud[a][0]);
-                                                          print "adding ney key " +  keycloud[a][0]
+                                                          print "adding new key " +  keycloud[a][0]
                                                       if (keycloud[a][b] in data["BLURB"].encode('utf-8')):
                                                           key.append(keycloud[a][0]);
-                                                          print "adding ney key " +  keycloud[a][0]
+                                                          print "adding new key " +  keycloud[a][0]
                                                     except:
                                                       continue
                                               data["KEYWORDS"] = key
                                               #print data
                                               
-                                            #  if data["PAGES"] < 120:
                                               try:
                                                 print data["NAME"]
                                               except:
@@ -712,16 +734,15 @@ def ReadAsin():
                                               print str(data["PAGES"]) + " Pages, Keywords: " + str(data["KEYWORDS"])
                                               print "-->APPENDED TO DATABASE\n"
                                               database.append(data)
-                                             # else:
-                                              #  print "-->story to long\n\n"
                     
                     print "\n-------------------------------------------------------------------------------"
                     print "Finished on keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + str(keycloud[k][0]) + "): found " + str((len(database))-before) + " new entries."
                     print "-------------------------------------------------------------------------------\n\n"
-                    with open(filename, 'wb') as f:
-                        pickle.dump(database, f)
+                    
+                    
+                    filename = title + ".json"
                         
-                    with open('database.json', 'wb') as f:
+                    with open(filename, 'wb') as f:
                         print len(database)
                         print "Database saved\n"
                         pickle.dump(database, f)
@@ -742,95 +763,54 @@ def ReadAsin():
         except:
             o = 19
             
-            
-        for k in range (0, len(keycloud2)):
-            for j in range (0, len(keycloud2[k])):
-               if not keycloud2[k][j] in database[i]["KEYWORDS"]:
-                    if keycloud2[k][j] in database[i]["NAME"].lower():
-                        print database[i]["NAME"] + ": " + keycloud2[k][j]
-                        database[i]["KEYWORDS"].append(keycloud2[k][j])
-             #       else:
-             #           
-              #          print database[i]["NAME"] + ": not "+  keycloud2[k][j]
-                    try:    
-                        if keycloud2[k][j] in database[i]["BLURB"]:
-                            print database[i]["NAME"] + ": " + keycloud2[k][j]
-                            database[i]["KEYWORDS"].append(keycloud2[k][j])
-                    except:
-                       continue
-    with open(filename, 'wb') as f:
-        pickle.dump(database, f)
+
+    filename = title + ".json"
         
-    with open('database.json', 'wb') as f:
+    with open(filename, 'wb') as f:
         print len(database)
         print "Database saved\n"
         pickle.dump(database, f)
+        
+        
+    writeToCSV(database)
                     
    
-#    for i in range(0, len(database)):
-#        try:
-#            if(database[i]["RANK"] < 1000):
-#                if(database[i]["RANK"] > 0):
-#                    print str(database[i]["NAME"]) + ";" + str(database[i]["PAGES"]) + ";" + str(database[i]["PRICE"]) + ";" + str(database[i]["RANK"]) + ";" + str(database[i]["KEYWORDS"])
-#        except:
-#                  continue
-##	print database[i]
-	#extracted_data.append(database[i])
-#    with io.open(filename,'w') as outfile:
-#      outfile.write(unicode(json.dumps(database, indent=4)))
-
-
-  #  f=io.open(filename,'w')
-  #  json.dump(extracted_data,f,indent=4)
-#    with codecs.open("data.json", 'w', 'utf-8') as ofile:
-#      json.dump(extracted_data, ofile, indent=4, ensure_ascii=False) 
-
-#    logfile = codecs.open("data.json", 'w', encoding='latin-1')
-#    json.dump(extracted_data, logfile, indent=4, ensure_ascii=False) 
-    
-    
-    
-    
-def clean(str):
-    print str
-    #if "\xe4" in str:
-    #    print "notwendig."
-#    str = str.replace("","ae")
-#    str = str.replace("梬"oe")
-#    str = str.replace("좬"ue")
-#    str = str.replace("ߢ,"ss")
     
     
 if __name__ == "__main__":
+  
+  global pagedepth
+  global title
+  
+  filename = "config"
+  if os.path.isfile(filename):
+      with open(filename) as data_file:    
+          configs = json.load(data_file)
+          pagedepth = configs[0][1]
+          something = configs[1][1]
+          
+  else:
+      print "config file deleted. Using defaults."
+      configs = []
+      pages = ["How many pages of search results: ", 6]
+      something = ["something", 100]
+      configs.append(pages)
+      configs.append(something)
+      json.dumps(configs)        
+      with open (filename, "w") as f:
+          f.write(json.dumps(configs))
+      pagedepth = 6
+  
+  if len(sys.argv) < 2:
+      print "You must set at least two arguments. The first one specifies the name of your search, the second and all subsequent are the search keywords.\n"
+      print "e.g. python scrape.py krimi-suche krimi mord detektiv" 
+      sys.exit()
+  else:
+      title = sys.argv[1]
+      key = []
+      for i in range(2, len(sys.argv)):
+        key.append(sys.argv[i])
+      keycloud.append(key)
+      
+  ReadAsin()
 
-#   filename = "2016-11-03_data_153.json"
-#   with open(filename, 'rb') as f:
-#      database = pickle.load(f)
-	  
-#   print len(database)
-#   for i in range(0, len(database)):
-#        print database[i]["AUTHOR"]
-        
-        #database[i]["NAME"] = clean(database[i]["NAME"])
-        #database[i]["AUTHOR"] = clean(database[i]["AUTHOR"])
-        #database[i]["CATEGORY"] = clean(database[i]["CATEGORY"])
-        #database[i]["URL"] = clean(database[i]["URL"])
-        #database[i]["1CATEGORY"] = clean(database[i]["1CATEGORY"])
-        #database[i]["2CATEGORY"] = clean(database[i]["2CATEGORY"])
-        #database[i]["3CATEGORY"] = clean(database[i]["3CATEGORY"])
-
-#   filename = str(time.strftime("%Y-%m-%d")) + "_data.json"
-#   f=open('data.json','w')
-#   json.dump(database,f,indent=4)
-	
-    
-    	
-    
-#    with io.open(filename,'w') as outfile:
-#      outfile.write(unicode(json.dumps(database, indent=4)))
-#    asin = "b01m72pkrk"
-#    s = requests.Session()
-#    url = "https://www.amazon.de/dp/" + asin
-#    data = AmzonParser(url,asin,s)
-#    sys.exit()
-    ReadAsin()
