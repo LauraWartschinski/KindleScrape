@@ -694,9 +694,9 @@ def ReadAsin():
                                       #print "Entry already has the key.\n"
                                   else:
                                       #print "Updated keywords for entry.\n"
-                                      database[i]["KEYWORDS"].append(keycloud[k][j])
-
-                                 
+                                      if keycloud[k][j] not in database[i]["KEYWORDS"]:
+                                        database[i]["KEYWORDS"].append(keycloud[k][j])
+                      
                       if found == False:
                               ## new book url
                               data = AmzonParser(url,links[l],s)
@@ -714,13 +714,21 @@ def ReadAsin():
                                               else:
                                                   #print "Updated keywords for entry.\n"
                                                   #print "adding new key " +  keycloud[k][0]
-                                                  database[i]["KEYWORDS"].append(keycloud[k][j])
-                                                #  print database[i]["KEYWORDS"]
+                                                  if keycloud[k][j] not in database[i]["KEYWORDS"]:
+                                                    database[i]["KEYWORDS"].append(keycloud[k][j])
                                     if new == True:
                                               ## new book title as well!
-                                              data["KEYWORDS"] = keycloud[k][j]
+                                              data["KEYWORDS"] = []
+                                              data["KEYWORDS"].append(keycloud[k][j])
                                               #print data
-                                              
+                                              for a in range(0,len(keycloud)):
+                                                for b in range (0, len(keycloud[a])):
+                                                  if keycloud[a][b] in data["NAME"]:
+                                                    if keycloud[a][b] not in data["KEYWORDS"]:
+                                                      data["KEYWORDS"].append(keycloud[a][b])
+                                                  if keycloud[a][b] in data["BLURB"]:
+                                                    if keycloud[a][b] not in data["KEYWORDS"]:
+                                                      data["KEYWORDS"].append(keycloud[a][b])
                                               try:
                                                 print data["NAME"]
                                               except:
