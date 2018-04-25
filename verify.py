@@ -102,7 +102,6 @@ if __name__ == "__main__":
   while k not in (keywordlist):
     k = raw_input("For which keyword do you want to verify the titles? Options: " + str(keywordlist) + "\n")
  
-  print keywordlist
   print "\n"
   titlehints = ""
   titlehints = raw_input("Specify words/word groups that DEFINITELY put a book in the category " + k + ", if they appear in the TITLE. Seperate them by commas. Upper or lower case doesn't matter. You can leave this empty.\n   E.g. for 'krimi', you could use 'Fall,Mord', since a lot of krimi titles contain something like 'Kommisar Clevers 6. Fall', or the word 'Mord'.\n")
@@ -288,7 +287,9 @@ if __name__ == "__main__":
         if (placement.lower() not in database[i]["1CATEGORY"].lower()) and (placement.lower() not in database[i]["2CATEGORY"].lower()) and (placement.lower() not in database[i]["3CATEGORY"].lower()):
           truestory = False;
         
-
+      
+      if not truestory:
+        database[i]["KEYWORDS"].remove(k)
   
   filename = title + "-verified" + ".json"
       
