@@ -18,6 +18,9 @@ The following infos about the books are collected:
 
 Install python 2.7 on your computer. Make sure you have a network connection. Run the scripts: first scrape.py, afterwards if desired verify.py.
 
+
+## Detailed Description
+
 ### Scrape
 
 Used to fetch books for certain keywords and genres from Amazon.
