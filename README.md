@@ -1,6 +1,5 @@
 # KindleScrape
-A collection of python scripts for scraping the German Amazon ebook store, using keywords and metrics.
-
+A collection of python scripts for scraping the German Amazon ebook store, using keywords and metrics. The main purpose is to easily collect data on books in certain topics, genres or niches for further evaluation. 
 
 # Scrape
 
