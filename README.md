@@ -14,7 +14,11 @@ The following infos about the books are collected:
 * Keywords under which it was found 
 * URL (contains ASIN)
 
-# Scrape
+## How to install
+
+Install python 2.7 on your computer. Make sure you have a network connection. Run the scripts: first scrape.py, afterwards if desired verify.py.
+
+### Scrape
 
 Used to fetch books for certain keywords and genres from Amazon.
 
@@ -50,7 +54,7 @@ If the script is interrupted, it will reload the progress since the last complet
 
 
 
-# Verify
+### Verify
 
 Usage: `python verify.py [search name]`
 With the same parameter that was used as a search name before.
