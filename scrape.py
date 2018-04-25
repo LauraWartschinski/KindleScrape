@@ -560,7 +560,6 @@ def writeToCSV(database):
 #                print entry
                 a.writerows([entry])
     b.close()
-    print "CSV saved."
 
  
  
