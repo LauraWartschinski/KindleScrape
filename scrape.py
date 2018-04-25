@@ -121,23 +121,23 @@ def collectLinksForKeyword(key):
 def collectLinks():
     extracted_data = []
     
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/611339031/"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/611339031/#2"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#2"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/611339031/#3"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#3"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/611339031/#4"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#4"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/611339031/#5"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#5"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
     print len(extracted_data)
@@ -147,7 +147,7 @@ def collectLinks():
 
 ########################### COLLECT BESTSELLERS ################################## 
  
-def CollectBestsellers():
+def CollectBestsellers(cat):
   filename = str(time.strftime("%Y-%m-%d")) + "_bestseller.json"
   #filename = "2016-11-03" + "_bestseller.json"
   if os.path.isfile(filename):
@@ -162,36 +162,8 @@ def CollectBestsellers():
   
   if not links:
 	print "No links fetched."
-	sys.exit()
-  
-  extracted_data = []
 
-  s = requests.Session()
-  for i in links:
-      url = "https://www.amazon.de/dp/" + i
-      while True:
-	  #patience = randint(0,2)
-	  #print "Patience (" + str(patience) + ")"
-	  #sleep(patience)
-	  data = AmzonParser(url,i,s)		
-	  if data:
-              if data["PAGES"] > 120:
-                  print "Novel. Ignore."
-                  break
-              if data["PAGES"] == 0:
-                  break
-	      if "Fifty" in data["NAME"]:
-		print "Fifty Shades is ignored."
-		break
-	      else:
-		key = []
-		key.append('bestseller')
-		data["KEYWORDS"] = key
-		extracted_data.append(data)
-		break
-	  print "Retry in 10 seconds."
-	  sleep(10)
-  return extracted_data 
+  return links
  
 
 
@@ -492,11 +464,6 @@ def AmzonParser(url,asin,session):
             AUTHOR = AUTHOR.split(",")[0]
 
 	  print "-SUCCESS- Fetched all the data."
-    #      try:
-    #          print NAME
-    #      except:
-    #          print "weird name"
-          #print "\n\n"
 	  data = {
 		  'NAME':NAME,
 		  'CATEGORY':CATEGORY,
@@ -541,7 +508,7 @@ def writeToCSV(database):
       for a in range (0, len(database[i]["KEYWORDS"])):
         if database[i]["KEYWORDS"][a] not in keywordlist:
           keywordlist.append(database[i]["KEYWORDS"][a])
-    print keywordlist
+
     
     headers = ["title","pages","author","reviews","rating","ku","price","blurb","url"]
     for j in range(0, len(keywordlist)):
@@ -605,7 +572,7 @@ def writeToCSV(database):
 ################################# MAIN SEARCH METHOD #########################################
  
  
-def ReadAsin():
+def ReadAsin(cat, bestsellers):
     global keycloud
     global last
     global title
@@ -613,6 +580,7 @@ def ReadAsin():
     
     database = []
     second = []
+    
     
     
     filename = "scrape-database-" + title + ".json"
@@ -627,23 +595,33 @@ def ReadAsin():
                 database = pickle.load(f)
                 print "database restored"
     else:
-      print "stated new database"
+      print "started new database"
+
+    if bestsellers == "y":
+        keycloud.insert(0,["bestsellers"])
+    print keycloud
 
     for k in range(0,len(keycloud)):
            neu = []
-           print "====================================================="
-           print "keyword group " + str(k+1) + " " + title
-           print "====================================================="
+#           print "====================================================="
+#           print "keyword group " + str(k+1) + " " + title
+#           print "====================================================="
            for j in range(0,len(keycloud[k])):
                filename = "save-" +keycloud[k][j] + ".json"
                
                
                ###For every keyword,  
                if os.path.isfile(filename):	
-                    print "\n-------------------------------------------------------------------------------"
-                    print "Loading keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + title + ")"
-                    print "-------------------------------------------------------------------------------\n"
 
+                    if keycloud[k][j] == "bestsellers":
+                      print "\n-------------------------------------------------------------------------------"
+                      print "Loading bestsellers"
+                      print "-------------------------------------------------------------------------------\n"
+
+                    else:
+                      print "\n-------------------------------------------------------------------------------"
+                      print "Working on keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + ")"
+                      print "-------------------------------------------------------------------------------\n"
                     #print "we already have a file"                
                     try:
                         with open(filename, 'rb') as f:
@@ -679,17 +657,29 @@ def ReadAsin():
                             app = app +1
                     print str(app) + " entries appended."
                     with open('database.json', 'wb') as f:
-                        print len(database)
+                        print str(len(database)) + " books in total collected."
                         print "Database saved\n"
                         pickle.dump(database, f)
                             
                else:
                 
-                    print "\n-------------------------------------------------------------------------------"
-                    print "Working on keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + title + ")"
-                    print "-------------------------------------------------------------------------------\n"
+                    if keycloud[k][j] == "bestsellers":
+                      print "\n-------------------------------------------------------------------------------"
+                      print "Fetching bestsellers"
+                      print "-------------------------------------------------------------------------------\n"
 
-                    links = collectLinksForKeyword(keycloud[k][j])
+                    else:
+                      print "\n-------------------------------------------------------------------------------"
+                      print "Working on keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + ")"
+                      print "-------------------------------------------------------------------------------\n"
+
+                    links = []
+                    if keycloud[k][j] == "bestsellers":
+                      links = CollectBestsellers(cat)
+                    
+                    
+                    else:  
+                      links = collectLinksForKeyword(keycloud[k][j])
                     #print links
                     
                     before = len(database)
@@ -764,7 +754,7 @@ def ReadAsin():
                     filename = "scrape-database-" + title + ".json"
                         
                     with open(filename, 'wb') as f:
-                        print len(database)
+                        print str(len(database)) + " books in total collected."
                         print "Database saved\n"
                         pickle.dump(database, f)
 
@@ -800,7 +790,7 @@ def ReadAsin():
     filename = title + ".json"
         
     with open(filename, 'wb') as f:
-        print len(database)
+        print str(len(database)) + " books in total collected."
         print "Database saved\n"
         pickle.dump(database, f)
         
@@ -819,15 +809,12 @@ if __name__ == "__main__":
       with open(filename) as data_file:    
           configs = json.load(data_file)
           pagedepth = configs[0][1]
-          something = configs[1][1]
           
   else:
       print "config file deleted. Using defaults."
       configs = []
       pages = ["result pages: ", 6]
-      something = ["something", 100]
       configs.append(pages)
-      configs.append(something)
       json.dumps(configs)        
       with open (filename, "w") as f:
           f.write(json.dumps(configs))
@@ -844,5 +831,21 @@ if __name__ == "__main__":
         key.append(sys.argv[i])
       keycloud.append(key)
       
-  ReadAsin()
+
+  cat = " "
+  bestsellers = "x"
+  categories = ["krimi","none"]
+  
+  while cat not in categories:
+    cat = raw_input("Pick a subcategory on Amazon to limit your search to (better results, especially for genre fiction). Options: krimi none\n")
+  
+  
+  if cat == "none":
+    while bestsellers not in ["y","n"]:
+      bestsellers = raw_input("Do you want to include the bestsellers of the general kindle shop? (regardless of whether the match the search terms) y/n\n")
+  else:
+    while bestsellers not in ["y","n"]:
+      bestsellers = raw_input("Do you want to include the bestsellers of your category? (regardless of whether the match the search terms) y/n\n")
+
+  ReadAsin(cat, bestsellers)
 
