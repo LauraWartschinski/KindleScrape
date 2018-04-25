@@ -14,7 +14,7 @@ The following infos about the books are collected:
 * Keywords under which it was found 
 * URL (contains ASIN)
 
-*Obviously, this script is not useful for commercial applications. It is developed for private use, mostly to help an author with their market research - e.g. to see what kind of books sell well on the Amazon Kindle store. It delivers the same information one could get by using a pen, a notepad and some time for browsing the store, just in a more convenient way.*
+*Obviously, this script is not useful for commercial applications. It is developed for private use, mostly to help an author with their market research - e.g. to see what kind of books sell well on the Amazon Kindle store. It delivers the same information one could get by using a pen, a notepad and many, many hours ofbrowsing the store, just in a more convenient way. To interpret the data is the user's obligation.*
 
 ## How to install
 
