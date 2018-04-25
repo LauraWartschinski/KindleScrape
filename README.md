@@ -18,7 +18,11 @@ Because of small variations in the amazon interface, some data can not always be
 
 ![example 1](https://github.com/LauraWartschinski/KindleScrape/blob/master/example.png)
 
-The output is stored in a csv file. JSON files are created to save the progress.
+The output is stored in a csv file. JSON files are created to save the progress. When an URL is encountered for which the content of the book is already scraped, it will not be loaded again, but the keywords will be updated. This is to reduce the total number of requests and to prolong the time the script can run without excessive captcha problems.
+
+![example 2](https://github.com/LauraWartschinski/KindleScrape/blob/master/exampl2.png)
+
+
 
 
 
