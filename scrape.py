@@ -728,6 +728,33 @@ def ReadAsin(cat, bestsellers):
                                                     database[i]["KEYWORDS"].append(keycloud[k][j])
                                     if new == True:
                                               ## new book title as well!
+                                              
+                                              if (excludeBundles == 1):
+                                                if " band " in data["NAME"].lower() or "sammelband" in data["NAME"].lower() or "bundle" in data["NAME"].lower() or " collection" in data["NAME"].lower() or " serie "  in data["NAME"].lower() or " reihe " in data["NAME"].lower():
+                                                  print data["NAME"] + " was not added because it's a bundle.\n\n"
+                                                  continue;
+                                              
+                                              if (excludeBad == 1):
+                                                if (data["REZENSIONEN"] > 0 and  data["RATING"] < 3):
+                                                   print data["NAME"] + " was not added because it's rating is to low.\n\n"
+                                                   continue;
+                                                 
+                                              if (excludeUnreviewed == 1):
+                                                if (data["REZENSIONEN"] == 0):
+                                                   print data["NAME"] + " was not added because it doesn't have reviews.\n\n"
+                                                   continue;
+                                                 
+                                              if (KU == 1):
+                                                if (data["KU"] == 0):
+                                                   print data["NAME"] + " was not added because it is not in Kindle Unlimited\n\n"
+                                                   continue;
+                                                 
+                                              if (KU == 2):
+                                                if (data["KU"] == 1):
+                                                   print data["NAME"] + " was not added because it is in Kindle Unlimited\n\n"
+                                                   continue;
+                                                  
+                                              
                                               data["KEYWORDS"] = []
                                               data["KEYWORDS"].append(keycloud[k][j])
                                               #print data
@@ -814,7 +841,8 @@ if __name__ == "__main__":
           excludeBundles = configs[1][1]
           excludeUnreviewed = configs[2][1]
           excludeBad = configs[3][1]
-          if not (excludeBad in [0,1] and excludeUnreviewed in [0,1] and excludeBundles in [0,1] and isinstance(pagedepth, int) and pagedepth > 0 and pagedepth < 100):
+          KU = configs[4][1]
+          if not (excludeBad in [0,1] and excludeUnreviewed in [0,1] and excludeBundles in [0,1] and KU in [0,1,2] and isinstance(pagedepth, int) and pagedepth > 0 and pagedepth < 100):
             print "Config file has errors. Fix it, or delete it before starting again."
             sys.exit()
         except:
@@ -829,7 +857,7 @@ if __name__ == "__main__":
       excludeBundles = ["exclude bundles: ",0]
       excludeUnreviewed = ["exlude unreviewed books: ", 0]
       excludeBad = ["exlude bad books: ", 0]
-
+      KU = ["kindle unlimited: ", 0]
       configs.append(pages)
       json.dumps(configs)        
       with open (filename, "w") as f:
