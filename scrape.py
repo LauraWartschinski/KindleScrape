@@ -536,10 +536,16 @@ def save(links,keyword):
  
 def writeToCSV(database):
     
+    keywordlist = []
+    for i in range (0, len(database)):
+      for a in range (0, len(database[i]["KEYWORDS"])):
+        if database[i]["KEYWORDS"][a] not in keywordlist:
+          keywordlist.append(database[i]["KEYWORDS"][a])
+    print keywordlist
+    
     headers = ["title","pages","author","reviews","rating","ku","price","blurb","url"]
-    for j in range(0, len(keycloud)):
-      for k in range(0, len(keycloud[j])):
-        headers.append(keycloud[j][k])
+    for j in range(0, len(keywordlist)):
+        headers.append(keywordlist[j])
     headers.append("category")
     headers.append("rank")
     headers.append("category")
@@ -562,9 +568,8 @@ def writeToCSV(database):
                 entry.append(database[i]["PRICE"])
                 entry.append(database[i]["BLURB"])
                 entry.append(database[i]["URL"])
-                for j in range(0, len(keycloud)):
-                  for k in range(0, len(keycloud[j])):
-                    if keycloud[j][k] in database[i]["KEYWORDS"]:
+                for j in range(0, len(keywordlist)):
+                    if keywordlist[j] in database[i]["KEYWORDS"]:
                       entry.append("1")
                     else:
                       entry.append("0")
@@ -608,24 +613,23 @@ def ReadAsin():
     
     database = []
     second = []
+    
+    
     filename = "scrape-database-" + title + ".json"
     
     if os.path.isfile(filename):	
         try:
             with open(filename, 'rb') as f:
                 database = json.load(f)
-                print "databas restored"
+                print "database restored"
         except:
             with open(filename, 'rb') as f:
                 database = pickle.load(f)
-                print "databas restored"
+                print "database restored"
     else:
-      print "started new database"
+      print "stated new database"
 
-
-    
     for k in range(0,len(keycloud)):
-           print len(database)
            neu = []
            print "====================================================="
            print "keyword group " + str(k+1) + " " + title
@@ -635,7 +639,7 @@ def ReadAsin():
                
                
                ###For every keyword,  
-               if os.path.isfile(filename) and False:	
+               if os.path.isfile(filename):	
                     print "\n-------------------------------------------------------------------------------"
                     print "Loading keyword \"" + keycloud[k][j] + "\" (" + str(j+1) + " of " + str(len(keycloud[k])) + " for keygroup " + title + ")"
                     print "-------------------------------------------------------------------------------\n"
@@ -757,7 +761,7 @@ def ReadAsin():
                     print "-------------------------------------------------------------------------------\n\n"
                     
                     
-                    filename = title + ".json"
+                    filename = "scrape-database-" + title + ".json"
                         
                     with open(filename, 'wb') as f:
                         print len(database)
@@ -792,7 +796,7 @@ def ReadAsin():
         except:
             o = 19
             
-
+      
     filename = title + ".json"
         
     with open(filename, 'wb') as f:
@@ -801,6 +805,7 @@ def ReadAsin():
         pickle.dump(database, f)
         
         
+  
     writeToCSV(database)
                     
    
