@@ -807,14 +807,29 @@ if __name__ == "__main__":
   
   filename = "config"
   if os.path.isfile(filename):
-      with open(filename) as data_file:    
+      with open(filename) as data_file:
+        try:
           configs = json.load(data_file)
           pagedepth = configs[0][1]
-          
+          excludeBundles = configs[1][1]
+          excludeUnreviewed = configs[2][1]
+          excludeBad = configs[3][1]
+          if not (excludeBad in [0,1] and excludeUnreviewed in [0,1] and excludeBundles in [0,1] and isinstance(pagedepth, int) and pagedepth > 0 and pagedepth < 100):
+            print "Config file has errors. Fix it, or delete it before starting again."
+            sys.exit()
+        except:
+          print "Config file has errors. Fix it, or delete it before starting again."
+          sys.exit()
+  
+  
   else:
       print "config file deleted. Using defaults."
       configs = []
       pages = ["result pages: ", 6]
+      excludeBundles = ["exclude bundles: ",0]
+      excludeUnreviewed = ["exlude unreviewed books: ", 0]
+      excludeBad = ["exlude bad books: ", 0]
+
       configs.append(pages)
       json.dumps(configs)        
       with open (filename, "w") as f:
