@@ -14,6 +14,8 @@ The following infos about the books are collected:
 * Keywords under which it was found 
 * URL (contains ASIN)
 
+*Obviously, this script is not useful for commercial applications. It is developed for private use, mostly to help an author with their market research - e.g. to see what kind of books sell well on the Amazon Kindle store. It delivers the same information one could get by using a pen, a notepad and many, many hours ofbrowsing the store, just in a more convenient way. To interpret the data is the user's obligation.*
+
 ## How to install
 
 Install python 2.7 on your computer. Make sure you have a network connection. Run the scripts: first scrape.py, afterwards if desired verify.py.
@@ -30,10 +32,14 @@ Usage: `python scrape.py [search name] [keyword 1] [keyword 2] [keyword 3] (etc)
 Example: `python scrape.py krimisuche kriminalroman detektiv mord`
 
 Config File Parameters
-* result pages: how many pages of results for every keyword should be scraped for books. The default is currently set to 6.
+* result pages: how many pages of results for every keyword should be scraped for books, between 1 and 99. The default is currently set to 6. It is not helpful to have a very high number here, since then a lot of irrelevant books will be scraped.
 * exclude bundles: 1 if bundles and collections should be excluded while scraping, 0 otherwise, default 0
 * exclude unreviewed books: 1 if books without a single review should be excluded while scraping, 0 otherwise, default 0
 * exclude bad books: 1 if books with a rating below 3 stars should be excluded while scraping, 0 otherwise, default 0
+* KU: 0 if it doesn't matter if the book is in the kindle unlimited program, 1 if *only* KU books should be scraped, 2 if only *non*-KU books should be scraped
+
+Example: `[["result pages: ", 6],["exclude bundles: ",1], ["exlude unreviewed books: ", 1], ["exlude bad books: ", 1], ["Kindle Unlimited: ", 2]]`
+
 
 The program will ask whether you want to limit your search to a certain subcategory in the kindle store (e.g. erotica, poems, historicals etc.). This usually leads to way better results.
 
