@@ -101,7 +101,32 @@ def collectLinksForKeyword(key):
     else:
       extracted_data = []
       for i in range(0,pagedepth):
-        
+  
+  
+	b = "3D530886031"
+	if cat == "krimi/thriller":
+		b = "3D5870279031"        
+	if cat == "gegenwart":
+		b = "3D610653031"        
+	if cat == "fantasy/scifi":
+		b = "3D567119031"        
+	if cat == "liebe":
+		b = "3D610659031"        
+	if cat == "erotik":
+		b = "3D611339031"        
+	if cat == "historisch":
+		b = "3D610655031"        
+	if cat == "ratgeber":
+		b = "3D567131031"        
+	if cat == "politik/geschichte":
+		b = "3D567130031"    
+	if cat == "jugendbuch":
+		b = "3D4931127031"        
+	if cat == "fachbuch":
+		b = "3D567118031"
+
+	url = "https://www.amazon.de/s/&url=node%" + b + "&field-keywords="  + key + "?page=" + str(i)
+
 	url = "https://www.amazon.de/s/url=search-alias%3Ddigital-text&field-keywords=" + key + "?page=" + str(i)
 #	url = "https://www.amazon.de/s/&url=node%3D611339031&field-keywords=" + key + "?page=" + str(i) //Erotik
 	new = AmazonParserLinks(url)
@@ -121,23 +146,45 @@ def collectLinksForKeyword(key):
 def collectLinks():
     extracted_data = []
     
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/"
+    b = "530886031"    
+    if cat == "krimi/thriller":
+        b = "567126031"        
+    if cat == "gegenwart":
+        b = "610653031"        
+    if cat == "fantasy/scifi":
+        b = "567119031"        
+    if cat == "liebe":
+        b = "567119031"        
+    if cat == "erotik":
+        b = "611339031"        
+    if cat == "historisch":
+        b = "610655031"        
+    if cat == "ratgeber":
+        b = "567131031"        
+    if cat == "politik/geschichte":
+        b = "567130031"    
+    if cat == "jugendbuch":
+        b = "4931127031"        
+    if cat == "fachbuch":
+        b = "567130031"
+        
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/" + b + "/"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#2"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/" + b + "/#2"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#3"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/" + b + "/#3"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#4"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/" + b + "/#4"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
 
-    url = "https://www.amazon.de/gp/bestsellers/digital-text/567126031/#5"
+    url = "https://www.amazon.de/gp/bestsellers/digital-text/" + b + "/#5"
     print "Processing: "+url
     extracted_data = extracted_data + AmazonParserLinks(url)
     print len(extracted_data)
@@ -878,10 +925,12 @@ if __name__ == "__main__":
 
   cat = " "
   bestsellers = "x"
-  categories = ["krimi","none"]
+  categories = ["krimi/thriller","gegenwart","fantasy/scifi","liebe","erotik","historisch","ratgeber","politik/geschichte","jugendbuch","fachbuch","none"]
+  
+      
   
   while cat not in categories:
-    cat = raw_input("Pick a subcategory on Amazon to limit your search to (better results, especially for genre fiction). Options: krimi none\n")
+    cat = raw_input("Pick a subcategory on Amazon to limit your search to (better results, especially for genre fiction). Options: 'krimi/thriller','gegenwart','fantasy/scifi','liebe','erotik','historisch','ratgeber','politik/geschichte','jugendbuch','fachbuch','none'\n")
   
   
   if cat == "none":
