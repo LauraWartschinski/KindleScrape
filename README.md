@@ -30,10 +30,11 @@ Usage: `python scrape.py [search name] [keyword 1] [keyword 2] [keyword 3] (etc)
 Example: `python scrape.py krimisuche kriminalroman detektiv mord`
 
 Config File Parameters
-* result pages: how many pages of results for every keyword should be scraped for books. The default is currently set to 6.
+* result pages: how many pages of results for every keyword should be scraped for books, between 1 and 99. The default is currently set to 6. It is not helpful to have a very high number here, since then a lot of irrelevant books will be scraped.
 * exclude bundles: 1 if bundles and collections should be excluded while scraping, 0 otherwise, default 0
 * exclude unreviewed books: 1 if books without a single review should be excluded while scraping, 0 otherwise, default 0
 * exclude bad books: 1 if books with a rating below 3 stars should be excluded while scraping, 0 otherwise, default 0
+* KU: 0 if it doesn't matter if the book is in the kindle unlimited program, 1 if *only* KU books should be scraped, 2 if only *non*-KU books should be scraped
 
 The program will ask whether you want to limit your search to a certain subcategory in the kindle store (e.g. erotica, poems, historicals etc.). This usually leads to way better results.
 
