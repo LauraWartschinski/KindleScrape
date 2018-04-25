@@ -36,6 +36,9 @@ Config File Parameters
 * exclude bad books: 1 if books with a rating below 3 stars should be excluded while scraping, 0 otherwise, default 0
 * KU: 0 if it doesn't matter if the book is in the kindle unlimited program, 1 if *only* KU books should be scraped, 2 if only *non*-KU books should be scraped
 
+Example: `[["result pages: ", 6],["exclude bundles: ",1], ["exlude unreviewed books: ", 1], ["exlude bad books: ", 1], ["Kindle Unlimited: ", 2]]`
+
+
 The program will ask whether you want to limit your search to a certain subcategory in the kindle store (e.g. erotica, poems, historicals etc.). This usually leads to way better results.
 
 It will also ask whether the bestsellers from the given category (or the overall bestsellers, if none was specified) should be scraped, regardless of whether they come up with one of the search terms.
